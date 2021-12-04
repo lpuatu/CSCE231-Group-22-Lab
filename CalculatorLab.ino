@@ -147,7 +147,7 @@ void setup_display_module() {
 uint8_t get_key_pressed() {
   uint8_t key_pressed;
   unsigned long now = millis();
-  if (now - last_keypad_press > 500) {
+  if (now - last_keypad_press > 50) {
     last_keypad_press = now;
     for(int i=0;i<4;i++){
       gpio[D0_D7].output |= 0b11110000;

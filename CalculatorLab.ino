@@ -80,12 +80,14 @@ void loop() {
     //  }
 
     if (!left_button_current_position && (now - last_left_button_press > 500)) {
+      Serial.println("Button left");
     leftButtonPressed();
-    last_left_button_press = now;
+    //last_left_button_press = now;
    }
    if (!right_button_current_position && (now - last_right_button_press > 500)) {
+     Serial.println("Button right";)
     rightButtonPressed();
-    last_right_button_press = now;
+    //last_right_button_press = now;
    }
 
   //handle timeout
@@ -362,6 +364,7 @@ void displayError(){
 
 
 void handle_keypress(){
+  Serial.println("keypad");
   unsigned long now = millis(); // TODO: CHANGE
   last_interaction = now;
   uint8_t key_pressed = get_key_pressed();
@@ -373,6 +376,7 @@ void handle_keypress(){
 }
 
 void handle_buttonpress(){
+  Serial.println("Button");
   unsigned long now = millis(); // TODO: CHANGE
   last_interaction = now;
 

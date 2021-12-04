@@ -58,18 +58,6 @@ void loop() {
   uint8_t left_button_current_position = gpio[D8_D13].input & (1);
   unsigned long now = millis();
 
-<<<<<<< HEAD
-     if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 500)) {
-        //keyPressed(get_key_pressed());
-        inputDisplay(get_key_pressed());
-     }
-     if(millis() - last_keypad_press > 500){
-      gpio[D8_D13].output &= ~(1<<4);
-     }else{
-       gpio[D8_D13].output |= 1<<4;
-     }
-
-=======
   if(now - last_time_keypad_pressed > 100 && (last_key_pressed >= 0 && last_key_pressed < 16)){
     Serial.println("Keypad pressed");
     inputDisplay(last_key_pressed);
@@ -88,7 +76,6 @@ void loop() {
     //    gpio[D8_D13].output |= 1<<4;
     //  }
 
->>>>>>> fe4547d07f31f74ec76b179463edb3716b6fc3fd
     if (!left_button_current_position && (now - last_left_button_press > 500)) {
     leftButtonPressed();
     last_left_button_press = now;
@@ -101,9 +88,6 @@ void loop() {
 }
 
 void inputDisplay(uint8_t key){
-<<<<<<< HEAD
-  keyPressed(key);
-=======
   //Display the number!
   if(operand2 * 10 < 99999999){
   if(key == 0x01){
@@ -172,7 +156,6 @@ void inputDisplay(uint8_t key){
   if(key == 0x0A || 0x0B || 0x0C || 0x0D || 0x0E){
     calculate(key);
   }
->>>>>>> fe4547d07f31f74ec76b179463edb3716b6fc3fd
 }
 
 void calculate(uint8_t key){
@@ -275,10 +258,6 @@ void setup_display_module() {
   for (char i = 1; i <= 8; i++) {
     display_data(i, 0);     // clear all digit registers
   }
-<<<<<<< HEAD
-  display_data(1,seven_segments[0]);
-=======
->>>>>>> fe4547d07f31f74ec76b179463edb3716b6fc3fd
 }
 
 uint8_t get_key_pressed() {
@@ -419,10 +398,6 @@ void displayCurrentNumber(){
       for (char i = 1; i <= 8; i++) {
         display_data(i, 0);
       }
-<<<<<<< HEAD
-      display_data(1,seven_segments[0]);
-=======
->>>>>>> fe4547d07f31f74ec76b179463edb3716b6fc3fd
     }else{
       long intToDisplay = operand1;
       int indexInDisplay = 1;
@@ -449,10 +424,6 @@ void displayCurrentNumber(){
       for (char i = 1; i <= 8; i++) {
         display_data(i, 0);
       }
-<<<<<<< HEAD
-       display_data(1,seven_segments[0]);
-=======
->>>>>>> fe4547d07f31f74ec76b179463edb3716b6fc3fd
     }else{
       long intToDisplay = operand2;
       int indexInDisplay = 1;
@@ -501,8 +472,6 @@ void displayError(){
   display_data(3,0b101);
   display_data(4,0b101);
   display_data(5,0b1001111);
-<<<<<<< HEAD
-=======
 }
 
 void handle_keypress(){
@@ -512,5 +481,4 @@ void handle_keypress(){
     last_key_pressed = key_pressed;
     last_time_keypad_pressed = millis();
   }
->>>>>>> fe4547d07f31f74ec76b179463edb3716b6fc3fd
 }

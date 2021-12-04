@@ -68,24 +68,24 @@ void loop() {
     last_time_keypad_pressed = 0xFFFFFFFF;
   }
 
-    //  if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 500)) {
-    //     //keyPressed(get_key_pressed());
-    //     inputDisplay(get_key_pressed());
-    //  }
+     if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 50)) {
+        //keyPressed(get_key_pressed());
+        inputDisplay(get_key_pressed());
+     }
 
-    //  if(millis() - last_keypad_press > 500){
-    //   gpio[D8_D13].output &= ~(1<<4);
-    //  }else{
-    //    gpio[D8_D13].output |= 1<<4;
-    //  }
+     if(millis() - last_keypad_press > 500){
+      gpio[D8_D13].output &= ~(1<<4);
+     }else{
+       gpio[D8_D13].output |= 1<<4;
+     }
 
-    if (!left_button_current_position && (now - last_left_button_press > 500)) {
+    if (!left_button_current_position && (now - last_left_button_press > 50)) {
       Serial.println("Button left");
     leftButtonPressed();
     //last_left_button_press = now;
    }
-   if (!right_button_current_position && (now - last_right_button_press > 500)) {
-     Serial.println("Button right";)
+   if (!right_button_current_position && (now - last_right_button_press > 50)) {
+     Serial.println("Button right");
     rightButtonPressed();
     //last_right_button_press = now;
    }
@@ -367,12 +367,7 @@ void handle_keypress(){
   Serial.println("keypad");
   unsigned long now = millis(); // TODO: CHANGE
   last_interaction = now;
-  uint8_t key_pressed = get_key_pressed();
-
-  if(last_key_pressed != key_pressed){
-    last_key_pressed = key_pressed;
-    last_time_keypad_pressed = now;
-  }
+  last_keypad_press = now;
 }
 
 void handle_buttonpress(){

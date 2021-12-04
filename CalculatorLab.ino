@@ -61,12 +61,12 @@ void loop() {
   uint8_t left_button_current_position = gpio[D8_D13].input & (1);
   unsigned long now = millis(); //TODO: CHANGE
 
-  if(now - last_time_keypad_pressed > 100 && (last_key_pressed >= 0 && last_key_pressed < 16)){
-    Serial.println("Keypad pressed");
-    inputDisplay(last_key_pressed);
-    last_key_pressed = 244;
-    last_time_keypad_pressed = 0xFFFFFFFF;
-  }
+  // if(now - last_time_keypad_pressed > 100 && (last_key_pressed >= 0 && last_key_pressed < 16)){
+  //   Serial.println("Keypad pressed");
+  //   inputDisplay(last_key_pressed);
+  //   last_key_pressed = 244;
+  //   last_time_keypad_pressed = 0xFFFFFFFF;
+  // }
 
      if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 50)) {
         //keyPressed(get_key_pressed());

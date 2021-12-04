@@ -13,6 +13,12 @@ int operandPosition = 1;
 uint8_t lastOperation = 0x0E;
 uint8_t get_key_pressed();
 
+void handle_buttonpress();
+void handle_keypress();
+
+volatile uint8_t last_key_pressed = 244;
+volatile unsigned long last_time_keypad_pressed = 0xFFFFFFFF;
+
 struct gpio_registers *gpio;
 struct spi_registers *spi;
 unsigned long last_keypad_press = 0;
@@ -38,6 +44,8 @@ void setup() {
   gpio = gpio = (gpio_registers *)(IObase+0x03);
   spi = (spi_registers *)(IObase+0x2C);
 
+  attachInterrupt(digitalPinToInterrupt (2), handle_buttonpress , CHANGE );
+  attachInterrupt(digitalPinToInterrupt (3), handle_keypress , CHANGE );
 
   setup_simple_io();
   setup_keypad();
@@ -50,15 +58,23 @@ void loop() {
   uint8_t left_button_current_position = gpio[D8_D13].input & (1);
   unsigned long now = millis();
 
-     if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 500)) {
-        //keyPressed(get_key_pressed());
-        inputDisplay(get_key_pressed());
-     }
-     if(millis() - last_keypad_press > 500){
-      gpio[D8_D13].output &= ~(1<<4);
-     }else{
-       gpio[D8_D13].output |= 1<<4;
-     }
+  if(now - last_time_keypad_pressed > 100 && (last_key_pressed >= 0 && last_key_pressed < 16)){
+    Serial.println("Keypad pressed");
+    inputDisplay(last_key_pressed);
+    last_key_pressed = 244;
+    last_time_keypad_pressed = 0xFFFFFFFF;
+  }
+
+    //  if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 500)) {
+    //     //keyPressed(get_key_pressed());
+    //     inputDisplay(get_key_pressed());
+    //  }
+
+    //  if(millis() - last_keypad_press > 500){
+    //   gpio[D8_D13].output &= ~(1<<4);
+    //  }else{
+    //    gpio[D8_D13].output |= 1<<4;
+    //  }
 
     if (!left_button_current_position && (now - last_left_button_press > 500)) {
     leftButtonPressed();
@@ -456,4 +472,13 @@ void displayError(){
   display_data(3,0b101);
   display_data(4,0b101);
   display_data(5,0b1001111);
+}
+
+void handle_keypress(){
+  uint8_t key_pressed = get_key_pressed();
+
+  if(last_key_pressed != key_pressed){
+    last_key_pressed = key_pressed;
+    last_time_keypad_pressed = millis();
+  }
 }

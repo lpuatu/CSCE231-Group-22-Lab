@@ -13,6 +13,14 @@ int operandPosition = 1;
 uint8_t lastOperation = 0x0E;
 uint8_t get_key_pressed();
 
+
+void handle_buttonpress();
+void handle_keypress();
+
+volatile unsigned long last_interaction = 0;
+volatile uint8_t last_key_pressed = 244;
+volatile unsigned long last_time_keypad_pressed = 0xFFFFFFFF;
+
 struct gpio_registers *gpio;
 struct spi_registers *spi;
 unsigned long last_keypad_press = 0;

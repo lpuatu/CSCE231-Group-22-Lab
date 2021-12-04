@@ -72,146 +72,9 @@ void loop() {
 }
 
 void inputDisplay(uint8_t key){
-  //Display the number!
-  if(operand2 * 10 < 99999999){
-  if(key == 0x01){
-    operand2 = (operand2 * 10L)+1L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x02){
-    operand2 = (operand2 * 10L)+2L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x03){
-    operand2 = (operand2 * 10L)+3L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x04){
-    operand2 = (operand2 * 10L)+4L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x05){
-    operand2 = (operand2 * 10L)+5L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x06){
-    operand2 = (operand2 * 10L)+6L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x07){
-    operand2 = (operand2 * 10L)+7L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x08){
-    operand2 = (operand2 * 10L)+8L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x09){
-    operand2 = (operand2 * 10L)+9L;
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  if(key == 0x00){
-    operand2 = (operand2 * 10L);
-    operandPosition = 2;
-    operand2Null = 0;
-    Serial.println(operand2);
-  }
-  displayCurrentNumber();
-}
-  //End of number display
-  if(key == 0x0A || 0x0B || 0x0C || 0x0D || 0x0E){
-    calculate(key);
-  }
+  keyPressed(key);
 }
 
-void calculate(uint8_t key){
-  if(key == 0x0A){
-    operand1 = operand2;
-    operand2 = 0;
-    operand2Null = 1;
-    lastOperation = 0x0A;
-    Serial.println("Addition");
-  }
-  if(key == 0x0B){
-    operand1 = operand2;
-    operand2 = 0;
-    operand2Null = 1;
-    lastOperation = 0x0B;
-    Serial.println("Subtraction");
-  }
-  if(key == 0x0C){
-    operand1 = operand2;
-    operand2 = 0;
-    operand2Null = 1;
-    lastOperation = 0x0C;
-    Serial.println("Multiplication");
-  }
-  if(key == 0x0D){
-    operand1 = operand2;
-    operand2 = 0;
-    operand2Null = 1;
-    lastOperation = 0x0D;
-    Serial.println("Division");
-  }
-  if(key == 0x0E){
-    if(lastOperation == 0x0A){
-      lastOperand = operand2;
-      operand2 = operand1 + operand2;
-      operand1 = 0;
-      operandPosition = 2;
-      operand2Null = 0;
-      Serial.println(operand2);
-    }
-    if(lastOperation == 0x0B){
-      lastOperand = operand2;
-      operand2 = operand1 - operand2;
-      operand1 = 0;
-      operandPosition = 2;
-      operand2Null = 0;
-      Serial.println(operand2);
-    }
-    if(lastOperation == 0x0C){
-      lastOperand = operand2;
-      operand2 = operand1 * operand2;
-      operand1 = 0;
-      operandPosition = 2;
-      operand2Null = 0;
-      Serial.println(operand2);
-    }
-    if(lastOperation == 0x0D){
-      lastOperand = operand2;
-      operand2 = operand1 / operand2;
-      operand1 = 0;
-      operandPosition = 2;
-      operand2Null = 0;
-      Serial.println(operand2);
-    }
-    if(lastOperation == 0x0E){
-      calculate(key);
-    }
-    Serial.println("Equal to");
-    displayCurrentNumber();
-    lastOperation = 0x0E;
-  }
-}
 
 void setup_simple_io() {
   gpio[A0_A5].direction &= 0b11001111;
@@ -299,26 +162,37 @@ void rightButtonPressed(){
 void keyPressed(uint8_t key){
   int shouldDisplayError = 0;
   Serial.println(key, HEX);
-
   if(key <=0x09){
     if(operandPosition ==1){
+      Serial.println(operand2, HEX);
       if(operand1Null == 1){
         operand1=0;
         operand1Null=0;
       }
       if(abs(operand1)/ 1000000 <1){
         operand1 *=10;
-        operand1 += key;
+        if(operand1 >=0){
+          operand1 += key;
+        }else{
+          operand1 -= key;
+        }
+        Serial.println(operand1, HEX);
       }
     }
     if(operandPosition ==2){
+      Serial.println(operand2, HEX);
       if(operand2Null == 1){
         operand2=0;
         operand2Null=0;
       }
       if(abs(operand2) / 1000000 <1){
         operand2 *=10;
-        operand2 += key;
+        if(operand2 >=0){
+          operand2 += key;
+        }else{
+          operand2 -= key;
+        }
+        Serial.println(operand2, HEX);
       }
     }
   }

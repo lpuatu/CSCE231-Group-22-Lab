@@ -21,8 +21,6 @@ volatile unsigned long last_interaction = 0;
 volatile uint8_t last_key_pressed = 244;
 volatile unsigned long last_time_keypad_pressed = 0xFFFFFFFF;
 
-volatile unsigned long timer_counter = 0;
-
 uint8_t timed_out = 0;
 
 struct gpio_registers *gpio;
@@ -30,7 +28,7 @@ struct spi_registers *spi;
 unsigned long last_keypad_press = 0;
 unsigned long last_left_button_press = 0;
 unsigned long last_right_button_press = 0;
-
+unsigned long last_left_switch_slide = 0;
 const uint8_t seven_segments[16] = {
   0b01111110, 0b00110000, 0b01101101, 0b01111001, 0b00110011,
   0b01011011, 0b01011111, 0b01110000, 0b01111111, 0b01111011,
@@ -44,23 +42,6 @@ const uint8_t keys[4][4] = {
   {0x07,0x08,0x09,0x0C},
   {0x0F,0x00,0x0E,0x0D}
 };
-
-void setup_timer(){
-  TCCR2A|=(1<<WGM01);    //Set the CTC mode
- OCR0A=0xF9;            //Set the value for 1ms
- TIMSK2|=(1<<OCIE0A);   //Set the interrupt request
- sei();                 //Enable interrupt
- TCCR2B|=(1<<CS01);    //Set the prescale 1/64 clock
- TCCR2B|=(1<<CS00);
-}
-
-ISR(TIMER2_COMPA_vect){    //This is the interrupt request
-  timer_count++;
-}
-
-unsigned long getMillis(){
-  return timer_counter;
-}
 
 void setup() {
   Serial.begin(9600);
@@ -78,17 +59,21 @@ void setup() {
 }
 
 void loop() {
+  uint8_t left_switch_current_position = ((gpio[A0_A5].input & (1<<4)))>>4;
   uint8_t right_button_current_position =  (gpio[D8_D13].input & (1<<1))>>1;
   uint8_t left_button_current_position = gpio[D8_D13].input & (1);
   unsigned long now = millis(); //TODO: CHANGE
-
+  Serial.println(left_switch_current_position);
   // if(now - last_time_keypad_pressed > 100 && (last_key_pressed >= 0 && last_key_pressed < 16)){
   //   Serial.println("Keypad pressed");
   //   inputDisplay(last_key_pressed);
   //   last_key_pressed = 244;
   //   last_time_keypad_pressed = 0xFFFFFFFF;
   // }
-
+      if (!left_button_current_position && (now - last_left_button_press > 500)) {
+        leftButtonPressed();
+        last_left_button_press = now;
+      }
      if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 75)) {
         //keyPressed(get_key_pressed());
         inputDisplay(get_key_pressed());
@@ -113,7 +98,12 @@ void loop() {
    }
 
   //handle timeout
-  if(now - last_interaction > 0xFFFFFF){ // TODO: dynamically get timeout value
+  if(left_switch_current_position == 0 && now - last_interaction > 30000){ // TODO: dynamically get timeout value
+    for (char i = 1; i <= 8; i++) {
+      display_data(i, 0);
+      timed_out = 1;
+    }
+  }else if(left_switch_current_position == 1 && now - last_interaction > 5000){
     for (char i = 1; i <= 8; i++) {
       display_data(i, 0);
       timed_out = 1;

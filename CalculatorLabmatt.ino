@@ -16,6 +16,7 @@ uint8_t get_key_pressed();
 void handle_buttonpress();
 void handle_keypress();
 
+volatile unsigned long last_interaction = 0;
 volatile uint8_t last_key_pressed = 244;
 volatile unsigned long last_time_keypad_pressed = 0xFFFFFFFF;
 
@@ -46,6 +47,7 @@ void setup() {
 
   attachInterrupt(digitalPinToInterrupt (2), handle_buttonpress , CHANGE );
   attachInterrupt(digitalPinToInterrupt (3), handle_keypress , CHANGE );
+  last_interaction = millis(); //TODO: CHANGE
 
   setup_simple_io();
   setup_keypad();
@@ -56,7 +58,7 @@ void setup() {
 void loop() {
   uint8_t right_button_current_position =  (gpio[D8_D13].input & (1<<1))>>1;
   uint8_t left_button_current_position = gpio[D8_D13].input & (1);
-  unsigned long now = millis();
+  unsigned long now = millis(); //TODO: CHANGE
 
   if(now - last_time_keypad_pressed > 100 && (last_key_pressed >= 0 && last_key_pressed < 16)){
     Serial.println("Keypad pressed");
@@ -85,6 +87,12 @@ void loop() {
     last_right_button_press = now;
    }
 
+  //handle timeout
+  if(now - last_interaction > 0xFFFFFF){ // TODO: dynamically get timeout value
+    for (char i = 1; i <= 8; i++) {
+      display_data(i, 0);
+    }
+  }
 }
 
 void inputDisplay(uint8_t key){
@@ -475,10 +483,28 @@ void displayError(){
 }
 
 void handle_keypress(){
+  unsigned long now = millis(); // TODO: CHANGE
+  last_interaction = now;
   uint8_t key_pressed = get_key_pressed();
 
   if(last_key_pressed != key_pressed){
     last_key_pressed = key_pressed;
-    last_time_keypad_pressed = millis();
+    last_time_keypad_pressed = now;
+  }
+}
+
+void handle_buttonpress(){
+  unsigned long now = millis(); // TODO: CHANGE
+  last_interaction = now;
+
+  uint8_t right_button_current_position =  (gpio[D8_D13].input & (1<<1))>>1;
+  uint8_t left_button_current_position = gpio[D8_D13].input & (1);
+
+  if(!left_button_current_position){
+    last_left_button_press = now;
+  }
+
+  if(!right_button_current_position){
+    last_right_button_press = now;
   }
 }

@@ -13,6 +13,13 @@ int operandPosition = 1;
 uint8_t lastOperation = 0x0E;
 uint8_t get_key_pressed();
 
+void handle_buttonpress();
+void handle_keypress();
+
+volatile unsigned long last_interaction = 0;
+volatile uint8_t last_key_pressed = 244;
+volatile unsigned long last_time_keypad_pressed = 0xFFFFFFFF;
+
 struct gpio_registers *gpio;
 struct spi_registers *spi;
 unsigned long last_keypad_press = 0;
@@ -519,4 +526,13 @@ void displayError(){
   display_data(3,0b101);
   display_data(4,0b101);
   display_data(5,0b1001111);
+}
+
+void handle_keypress(){
+  uint8_t key_pressed = get_key_pressed();
+
+  if(last_key_pressed != key_pressed){
+    last_key_pressed = key_pressed;
+    last_time_keypad_pressed = millis();
+  }
 }

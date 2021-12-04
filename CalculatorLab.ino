@@ -1,5 +1,4 @@
 #include "cowpi.h"
-#include "cowpi.h"
 
 void keyPressed(uint8_t key);
 void displayCurrentNumber();

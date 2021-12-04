@@ -21,6 +21,8 @@ volatile unsigned long last_interaction = 0;
 volatile uint8_t last_key_pressed = 244;
 volatile unsigned long last_time_keypad_pressed = 0xFFFFFFFF;
 
+volatile unsigned long timer_counter = 0;
+
 uint8_t timed_out = 0;
 
 struct gpio_registers *gpio;
@@ -42,6 +44,23 @@ const uint8_t keys[4][4] = {
   {0x07,0x08,0x09,0x0C},
   {0x0F,0x00,0x0E,0x0D}
 };
+
+void setup_timer(){
+  TCCR2A|=(1<<WGM01);    //Set the CTC mode
+ OCR0A=0xF9;            //Set the value for 1ms
+ TIMSK2|=(1<<OCIE0A);   //Set the interrupt request
+ sei();                 //Enable interrupt
+ TCCR2B|=(1<<CS01);    //Set the prescale 1/64 clock
+ TCCR2B|=(1<<CS00);
+}
+
+ISR(TIMER2_COMPA_vect){    //This is the interrupt request
+  timer_count++;
+}
+
+unsigned long getMillis(){
+  return timer_counter;
+}
 
 void setup() {
   Serial.begin(9600);

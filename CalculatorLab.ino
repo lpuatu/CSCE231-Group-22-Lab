@@ -21,6 +21,8 @@ volatile unsigned long last_interaction = 0;
 volatile uint8_t last_key_pressed = 244;
 volatile unsigned long last_time_keypad_pressed = 0xFFFFFFFF;
 
+uint8_t timed_out = 0;
+
 struct gpio_registers *gpio;
 struct spi_registers *spi;
 unsigned long last_keypad_press = 0;
@@ -68,7 +70,7 @@ void loop() {
   //   last_time_keypad_pressed = 0xFFFFFFFF;
   // }
 
-     if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 500)) {
+     if ((~(gpio[A0_A5].input)& 0b1111)>0  && (millis() - last_keypad_press > 50)) {
         //keyPressed(get_key_pressed());
         inputDisplay(get_key_pressed());
      }
@@ -79,12 +81,12 @@ void loop() {
        gpio[D8_D13].output |= 1<<4;
      }
 
-    if (!left_button_current_position && (now - last_left_button_press > 500)) {
+    if (!left_button_current_position && (now - last_left_button_press > 50)) {
       Serial.println("Button left");
     leftButtonPressed();
     last_left_button_press = now;
    }
-   if (!right_button_current_position && (now - last_right_button_press > 500)) {
+   if (!right_button_current_position && (now - last_right_button_press > 50)) {
      Serial.println("Button right");
     rightButtonPressed();
     last_right_button_press = now;
@@ -94,11 +96,18 @@ void loop() {
   if(now - last_interaction > 0xFFFFFF){ // TODO: dynamically get timeout value
     for (char i = 1; i <= 8; i++) {
       display_data(i, 0);
+      timed_out = 1;
     }
+  }else if(timed_out){
+      timed_out = 0;
+      displayCurrentNumber();
   }
 }
 
 void inputDisplay(uint8_t key){
+  if(timed_out){
+    return;
+  }
   keyPressed(key);
 }
 
